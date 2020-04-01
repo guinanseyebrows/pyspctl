@@ -1,7 +1,7 @@
 # pyspctl
 ## Control Spotify via Python/DBus
 ### Usage
-pyspctl <action>
+pyspctl *action*
   
 Actions: playpause, previous, next, status, nowplaying
   
