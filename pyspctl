@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+from dbus import Interface, SessionBus 
+from argparse import ArgumentParser 
+
+
+parser = ArgumentParser(description='Control local Spotify via DBus')
+parser.add_argument('action', nargs=1, choices=['playpause', 'next', 'previous', 'status', 'nowplaying'])
+action = parser.parse_args().action[0]
+
+session_bus = SessionBus()
+
+spotify_bus = session_bus.get_object("org.mpris.MediaPlayer2.spotify",
+                                     "/org/mpris/MediaPlayer2")
+
+spotify_properties = Interface(spotify_bus,
+                                    "org.freedesktop.DBus.Properties")
+
+spotify_control = Interface(spotify_bus, dbus_interface='org.mpris.MediaPlayer2.Player')
+
+def nowPlaying():
+    metadata = spotify_properties.Get("org.mpris.MediaPlayer2.Player", "Metadata")
+    title = str(metadata['xesam:title'])
+    title = (title[:32] + '...') if len(title) > 32 else title
+    artist = str(metadata['xesam:artist'][0])
+    print(artist + " - " + title)
+
+def playbackStatus():
+    print(spotify_properties.Get("org.mpris.MediaPlayer2.Player", "PlaybackStatus"))
+
+def togglePlayback():
+    spotify_control.PlayPause()
+
+def nextSong():
+    spotify_control.Next()
+
+def prevSong():
+    spotify_control.Previous()
+
+if action == 'nowplaying':
+    nowPlaying()
+elif action == 'status':
+    playbackStatus()
+elif action == 'playpause':
+    togglePlayback()
+elif action == 'previous':
+    prevSong()
+elif action == 'next':
+    nextSong()
+
